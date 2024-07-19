@@ -1,8 +1,11 @@
-
 import streamlit as st
 
+def main():
+    st.title(" :bar_chart: Helpman Healthcare About me Interactive Dashboard")
 
-st.title(" :bar_chart: Helpman Healthcare Abeout me Interactive Dashboard")
+    st.write("Information about the app.")
+
+
 
 
 def about_page():

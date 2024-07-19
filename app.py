@@ -1,17 +1,30 @@
-import dash
-from dash import Dash, html, dcc
+import streamlit as st
+from pathlib import Path
+import importlib.util
 
-app = Dash(__name__, use_pages=True)
+# Apply custom CSS
+def apply_custom_css():
+    with open('style.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-app.layout = html.Div([
-    html.H1('Multi-page app with Dash Pages'),
-    html.Div([
-        html.Div(
-            dcc.Link(f"{page['name']} - {page['path']}", href=page["relative_path"])
-        ) for page in dash.page_registry.values()
-    ]),
-    dash.page_container
-])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Main application
+def main():
+    st.sidebar.title("My Dashboard Pages")
+    apply_custom_css()
+    st.sidebar.header("Navigation")
+    page = st.sidebar.selectbox("Choose a page", ["Home", "About", "Finance", "Patient"])
+
+    page_files = {
+        "Home": "pages/Home.py",
+        "About": "pages/About.py",
+        "Finance": "pages/Pinance.py",
+        "Patient": "pages/Patient.py"
+    }
+
+    if page in page_files:
+        page_module = load_module(page, page_files[page])
+        page_module.main()
+
+if __name__ == "__main__":
+    main()
