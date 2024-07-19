@@ -1,9 +1,14 @@
+
 import streamlit as st
 
 
+st.title(" :bar_chart: Helpman Healthcare Abeout me Interactive Dashboard")
+
+
 def about_page():
-    st.title("About Me")
-    st.write(
+    def first_page():
+        st.title("About Me")
+        st.write(
             """
             Hi there! I'm Gemini, a large language model created by Google AI. I can generate text, translate languages, 
             write different kinds of creative content, and answer your questions in an informative way.
@@ -19,12 +24,11 @@ def about_page():
             I am excited to learn more and keep improving my abilities!
             """
         )
-   
+
     # --- HERO SECTION ---
     col1, col2 = st.columns([1, 2], gap="small")
     with col1:
-          st.write("Senior Data Analyst, assisting enterprises by supporting data-driven decision-making.")
-        
+        pass
 
     with col2:
         st.title("Sven Bosau")
@@ -54,4 +58,5 @@ def about_page():
         """
     )
 
-about_page()
+if __name__ == "__main__":
+    about_page()
