@@ -6,9 +6,6 @@ import pandas as pd
 #warnings.filterwarnings('ignore')
 import streamlit as st
 
-def main():
-    st.write("Welcome to the home page!")
-
 
 st.set_page_config(page_title="Healthcare!!!", page_icon=":bar_chart:", layout="wide")
 
