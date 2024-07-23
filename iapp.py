@@ -71,6 +71,7 @@ overview_df = filtered_df.copy()
 avg_length_of_stay = overview_df['patient_days'].mean()
 total_beds = overview_df['total_beds'].sum()
 occupied_beds = overview_df['beds_in_use'].sum()
+available_beds = total_beds - occupied_beds 
 bed_occupancy_rate = occupied_beds / total_beds * 100
 total_admissions = overview_df['daily_admissions'].sum()
 avg_treatment_cost = overview_df['daily_revenue'].mean()
@@ -85,7 +86,7 @@ with col2:
     st.metric("Bed Occupancy Rate (%)", f"{bed_occupancy_rate:.2f}")
 
 with col3:
-    st.metric("Occupied Beds", occupied_beds)
+    st.metric("Available Beds", available_beds)
 
 with col4:
     st.metric("Total Beds", total_beds)
