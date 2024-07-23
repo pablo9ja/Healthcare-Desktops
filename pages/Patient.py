@@ -1,25 +1,11 @@
 import streamlit as st
-
+import streamlit as st
+import plotly.express as px
+import pandas as pd
 
 st.title(" :bar_chart: Helpman Healthcare Patient Interactive Dashboard")
 st.write("Patient data and records.")
 
-
-import streamlit as st
-import plotly.express as px
-import pandas as pd
-#import os
-#import warnings
-#warnings.filterwarnings('ignore')
-import streamlit as st
-
-def main():
-    st.write("Welcome to the home page!")
-
-
-st.set_page_config(page_title="Healthcare!!!", page_icon=":bar_chart:", layout="wide")
-
-st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
 
 # Sidebar for file upload
