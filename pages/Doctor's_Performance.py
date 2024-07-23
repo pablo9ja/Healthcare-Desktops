@@ -8,7 +8,7 @@ import streamlit as st
 
 
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard For Doctor Performance")
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 # Sidebar for file upload
 st.sidebar.header("Upload your data file")
