@@ -4,12 +4,9 @@ import pandas as pd
 #import os
 #import warnings
 #warnings.filterwarnings('ignore')
-#from streamlit_option_menu import option_menu
-#import Revenue_streams, Patient,Hospital_Performance, Hospital_Staff,doctor, Quality_of_care
-
-#st.set_page_config(page_title="Healthcare!!!", page_icon=":bar_chart:", layout="wide")
 def run():
     pass
+
 
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
@@ -73,7 +70,6 @@ overview_df = filtered_df.copy()
 avg_length_of_stay = overview_df['patient_days'].mean()
 total_beds = overview_df['total_beds'].sum()
 occupied_beds = overview_df['beds_in_use'].sum()
-available_beds = total_beds - occupied_beds 
 bed_occupancy_rate = occupied_beds / total_beds * 100
 total_admissions = overview_df['daily_admissions'].sum()
 avg_treatment_cost = overview_df['daily_revenue'].mean()
@@ -88,7 +84,7 @@ with col2:
     st.metric("Bed Occupancy Rate (%)", f"{bed_occupancy_rate:.2f}")
 
 with col3:
-    st.metric("Available Beds", available_beds)
+    st.metric("Occupied Beds", occupied_beds)
 
 with col4:
     st.metric("Total Beds", total_beds)
@@ -129,6 +125,7 @@ with col2:
 department_df2 = filtered_df.groupby('departments').agg({
     'daily_visits': 'sum',
     'daily_admissions': 'sum',
+    'patient_days': 'sum'
 }).reset_index()
 department_df_melted = department_df2.melt(id_vars='departments',
                                            value_vars=['daily_visits', 'daily_admissions', 'patient_days'],
