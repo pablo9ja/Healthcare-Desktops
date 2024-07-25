@@ -8,8 +8,6 @@ import pandas as pd
 #import Revenue_streams, Patient,Hospital_Performance, Hospital_Staff,doctor, Quality_of_care
 
 #st.set_page_config(page_title="Healthcare!!!", page_icon=":bar_chart:", layout="wide")
-def run():
-    pass
 
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)

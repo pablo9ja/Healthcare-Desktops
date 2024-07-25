@@ -18,7 +18,7 @@ class MultiApp:
         with st.sidebar:        
             app = option_menu(
                 menu_title='Pondering ',
-                options=['Revenue_streams','Patient','Hospital_Performance','Hospital_Staff','Quality_of_care'],
+                options=['Revenue_streams','Patient','Hospital_Performance','doctor','Hospital_Staff','Quality_of_care'],
                 icons=['house-fill','person-circle','trophy-fill','chat-fill','info-circle-fill'],
                 menu_icon='chat-text-fill',
                 default_index=1,
