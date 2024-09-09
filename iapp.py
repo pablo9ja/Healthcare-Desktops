@@ -207,7 +207,9 @@ if not department_df.empty:
 
     with col2:
         st.subheader("Department Available Beds")
-        department_df['available_beds'] = department_df['total_beds'] - department_df['beds_in_use']
+        department_df['available_beds'] =  department_df['beds_in_use'] - department_df['total_beds'] 
+        
+        
         fig = px.bar(department_df, x=department_df.index, y='available_beds',
                      text=[f'{x:,.2f}' for x in department_df['available_beds']],
                      template="seaborn", color='available_beds', color_continuous_scale='Viridis')
