@@ -9,7 +9,6 @@ st.title(" :bar_chart: Helpman Healthcare Hospital Performance Interactive Dashb
 
 st.write("Information about the app.")
 
-
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 # Sidebar for file upload
@@ -42,12 +41,13 @@ date2 = pd.to_datetime(date2)
 df = df[(df.index >= date1) & (df.index <= date2)].copy()
 
 st.sidebar.header("Choose your filter: ")
+
 # Create filter for Department
-department = st.sidebar.multiselect("Pick your department", df["departments"].unique())
-if not department:
+wait = st.sidebar.multiselect("Hospital wait time", df["wait_time"].unique())
+if not wait:
     df2 = df.copy()
 else:
-    df2 = df[df["departments"].isin(department)]
+    df2 = df[df["wait_time"].isin(wait)]
 
 # Create filter for Refer Reason
 refer = st.sidebar.multiselect("Pick the refer reason", df2["refer_reason"].unique())
@@ -65,89 +65,99 @@ else:
 
 # Overview Page
 st.header("Overview")
-overview_df = filtered_df.copy()
 
-# Calculate summary metrics
-avg_length_of_stay = overview_df['patient_days'].mean()
-total_beds = overview_df['total_beds'].sum()
-occupied_beds = overview_df['beds_in_use'].sum()
-bed_occupancy_rate = occupied_beds / total_beds * 100
-total_admissions = overview_df['daily_admissions'].sum()
-avg_treatment_cost = overview_df['daily_revenue'].mean()
+# Calculate summary metrics for patient data
+patient_metrics = {
+    "total_patient_days": df['patient_days'].sum() if 'patient_days' in df.columns else None,
+    "total_daily_discharge": df['daily_discharge'].sum() if 'daily_discharge' in df.columns else None,
+    "avg_wait_time": df['wait_time'].mean() if 'wait_time' in df.columns else None,
+    "total_daily_readmission": df['daily_readmission'].sum() if 'daily_readmission' in df.columns else None,
+}
 
-# Create a single row for the overview charts
-col1, col2, col3, col4, col5 = st.columns(5)
+# Display the metrics
+st.subheader("Patient Summary Metrics")
+col1, col2,col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Average Length of Stay (days)", f"{avg_length_of_stay:.2f}")
-
+    st.metric("Total Patient Days", f"{patient_metrics['total_patient_days']:.0f}" if patient_metrics['total_patient_days'] is not None else "N/A")
 with col2:
-    st.metric("Bed Occupancy Rate (%)", f"{bed_occupancy_rate:.2f}")
+    st.metric("Total Daily Discharges", f"{patient_metrics['total_daily_discharge']:.0f}" if patient_metrics['total_daily_discharge'] is not None else "N/A")
 
 with col3:
-    st.metric("Occupied Beds", occupied_beds)
-
+    st.metric("Average Wait Time (minutes)", f"{patient_metrics['avg_wait_time']:.2f}" if patient_metrics['avg_wait_time'] is not None else "N/A")
 with col4:
-    st.metric("Total Beds", total_beds)
+    st.metric("Total Daily Readmissions", f"{patient_metrics['total_daily_readmission']:.0f}" if patient_metrics['total_daily_readmission'] is not None else "N/A")
 
-with col5:
-    st.metric("Total Admissions", total_admissions)
 
-# Additional overview charts
-st.subheader("Department Distribution of Admitted Patients")
-admissions_by_department = overview_df.groupby('departments')['daily_admissions'].sum().reset_index()
-fig = px.bar(admissions_by_department, x='departments', y='daily_admissions', title='Admissions by Department')
+
+# Filter the dataset for admission_rate vs readmission_rate
+filtered_admission_df = filtered_df[['wait_time', 'admission_rate', 'readmission_rate']]
+
+# Visualizing admission_rate vs readmission_rate filtered by wait_time
+st.header("Admission Rate vs Readmission Rate by Wait Time")
+
+# Plotting the scatter plot
+fig = px.scatter(filtered_admission_df,
+                 x='admission_rate',
+                 y='readmission_rate',
+                 color='wait_time',
+                 labels={'admission_rate': 'Admission Rate', 'readmission_rate': 'Readmission Rate'},
+                 title='Admission Rate vs Readmission Rate (colored by Wait Time)',
+                 template='plotly_dark',
+                 hover_data=['wait_time'])
+
+# Add trendline if desired
+fig.update_traces(marker=dict(size=10, opacity=0.7))
+
 st.plotly_chart(fig, use_container_width=True)
 
-st.subheader("Average Treatment Costs")
-fig = px.bar(overview_df, x='departments', y='daily_revenue', title='Average Treatment Costs by Department')
+
+# Filter the dataset for equip_count and equip_use
+filtered_equip_df = filtered_df[['wait_time', 'equip_count', 'equip_use']]
+
+# Sum the values for equip_count and equip_use within the filtered dataset
+aggregated_data = filtered_equip_df[['equip_count', 'equip_use']].sum()
+
+# Create a doughnut chart
+st.header("Equipment Count and Equipment Usage by Wait Time")
+
+# Preparing data for the doughnut chart
+doughnut_data = pd.DataFrame({
+    'Metric': ['Equipment Count', 'Equipment Use'],
+    'Value': [aggregated_data['equip_count'], aggregated_data['equip_use']]
+})
+
+# Plot the doughnut chart (pie chart with hole)
+fig = px.pie(doughnut_data, values='Value', names='Metric', title='Equipment Count and Use Distribution',
+             hole=0.4, labels={'Value': 'Total Value', 'Metric': 'Metrics'}, 
+             template="plotly_dark", color_discrete_sequence=px.colors.sequential.RdBu)
+
+# Display the doughnut chart in Streamlit
 st.plotly_chart(fig, use_container_width=True)
 
-# Detailed Pages
-st.header("Detailed Analysis")
-department_df = filtered_df.groupby('departments').agg({'beds_in_use': 'sum', 'total_beds': 'first'})
 
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Department Bed In Use")
-    fig = px.bar(department_df, x=department_df.index, y='beds_in_use',
-                 text=[f'{x:,.2f}' for x in department_df['beds_in_use']],
-                 template="seaborn", color='beds_in_use', color_continuous_scale='Viridis')
-    st.plotly_chart(fig, use_container_width=True)
-
-with col2:
-    st.subheader("Department Bed In Use")
-    fig = px.bar(department_df, x=department_df.index, y='beds_in_use',
-                 text=[f'{x:,.2f}' for x in department_df['beds_in_use']],
-                 template="seaborn", color='beds_in_use', color_continuous_scale='Viridis')
-    st.plotly_chart(fig, use_container_width=True)
-
-department_df2 = filtered_df.groupby('departments').agg({
-    'daily_visits': 'sum',
-    'daily_admissions': 'sum',
-    'patient_days': 'sum'
-}).reset_index()
-department_df_melted = department_df2.melt(id_vars='departments',
-                                           value_vars=['daily_visits', 'daily_admissions', 'patient_days'],
-                                           var_name='Metric', value_name='Count')
-
-with col1:
-    st.subheader("Department Daily Visit and Admissions")
-    fig = px.bar(department_df_melted, x='departments', y='Count', color='Metric', barmode='group',
-                 labels={'Count': 'Count', 'departments': 'Departments'},
-                 title='Department Metrics')
-    st.plotly_chart(fig, use_container_width=True)
-
-with col2:
-    st.subheader("Department Metrics Distribution")
-    fig = px.pie(department_df_melted, values='Count', names='Metric',
-                 title='Department Metrics Distribution',
-                 hole=0.5)
-    st.plotly_chart(fig, use_container_width=True)
-
-filtered_df["weekly"] = filtered_df.index.to_period("W")
+# Time Series Analysis
 st.subheader('Time Series Analysis')
+filtered_df["weekly"] = filtered_df.index.to_period("W")
 linechart = pd.DataFrame(filtered_df.groupby(filtered_df["weekly"].dt.strftime("%b : %d"))["daily_visits"].sum()).reset_index()
 fig2 = px.line(linechart, x="weekly", y="daily_visits", labels={"Patient": "count"}, height=500, width=1000, template="gridon")
 st.plotly_chart(fig2, use_container_width=True)
+
+# Analysis of least wait time by department
+st.subheader("Department with Least Wait Time")
+
+# Group by departments to find the one with the least average wait time
+wait_time_by_department = filtered_df.groupby('departments')['wait_time'].mean().reset_index()
+
+# Find department with the least wait time
+min_wait_time_department = wait_time_by_department.loc[wait_time_by_department['wait_time'].idxmin()]
+
+st.write(f"Department with the least average wait time: **{min_wait_time_department['departments']}**")
+st.write(f"Average wait time: **{min_wait_time_department['wait_time']:.2f} minutes**")
+
+# Plotting wait times for all departments
+fig3 = px.bar(wait_time_by_department, x='departments', y='wait_time', title="Wait Time by Department",
+              labels={'wait_time': 'Average Wait Time (Minutes)', 'departments': 'Departments'},
+              color='wait_time', color_continuous_scale='Blues')
+
+st.plotly_chart(fig3, use_container_width=True)

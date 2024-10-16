@@ -73,14 +73,14 @@ st.header("Overview")
 overview_df = filtered_df.copy()
 
 # Calculate summary metrics
-avg_length_of_stay = overview_df['patient_days'].mean()
+avg_length_of_stay = overview_df['equip_count'].mean()
 total_beds = overview_df['total_beds'].sum()
 occupied_beds = overview_df['beds_in_use'].sum()
 bed_occupancy_rate = occupied_beds / total_beds * 100
 total_admissions = overview_df['daily_admissions'].sum()
 avg_treatment_cost = overview_df['daily_revenue'].mean()
 
-# Create a single row for the overview charts
+# Create a single row for the overview charts 
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:

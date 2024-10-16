@@ -11,7 +11,7 @@ load_dotenv()
 
 # Placeholder for dataset loading function
 @st.cache_data
-def l
+def load_data(file_path='fake_healthcare.csv'):
     # Replace with your dataset loading logic
     data = pd.read_csv('fake_healthcare.csv')
     return data

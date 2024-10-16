@@ -1,9 +1,7 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-#import os
-#import warnings
-#warnings.filterwarnings('ignore')
+
 def run():
     pass
 
@@ -43,109 +41,122 @@ st.sidebar.header("Choose your filter: ")
 # Create filter for Department
 department = st.sidebar.multiselect("Pick your department", df["departments"].unique())
 if not department:
-    df2 = df.copy()
+    filtered_df = df.copy()
 else:
-    df2 = df[df["departments"].isin(department)]
-
-# Create filter for Refer Reason
-refer = st.sidebar.multiselect("Pick the refer reason", df2["refer_reason"].unique())
-if not refer:
-    df3 = df2.copy()
-else:
-    df3 = df2[df2["refer_reason"].isin(refer)]
-
-# Create filter for Staff to Patient Ratio
-staff_patient = st.sidebar.multiselect("Pick the Staff to Patient Ratio", df3["staff_patient_ratio"].unique())
-if not staff_patient:
-    filtered_df = df3.copy()
-else:
-    filtered_df = df3[df3["staff_patient_ratio"].isin(staff_patient)]
+    filtered_df = df[df["departments"].isin(department)]
 
 # Overview Page
 st.header("Overview")
 overview_df = filtered_df.copy()
 
-# Calculate summary metrics
-avg_length_of_stay = overview_df['patient_days'].mean()
-total_beds = overview_df['total_beds'].sum()
-occupied_beds = overview_df['beds_in_use'].sum()
-bed_occupancy_rate = occupied_beds / total_beds * 100
-total_admissions = overview_df['daily_admissions'].sum()
-avg_treatment_cost = overview_df['daily_revenue'].mean()
 
-# Create a single row for the overview charts
-col1, col2, col3, col4, col5 = st.columns(5)
+# Calculate summary metrics for employee data
+employee_metrics = {
+    "total_employee_count": overview_df['employee_count'].sum() if 'employee_count' in overview_df.columns else None,
+    "avg_employee_count": overview_df['employee_count'].mean() if 'employee_count' in overview_df.columns else None,
+    "total_employee_resign": overview_df['employee_resign'].sum() if 'employee_resign' in overview_df.columns else None,
+    "avg_employee_resign": overview_df['employee_resign'].mean() if 'employee_resign' in overview_df.columns else None,
+}
+
+# Display the metrics
+st.subheader("Employee Summary Metrics")
+col1, col2,col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Average Length of Stay (days)", f"{avg_length_of_stay:.2f}")
-
+    st.metric("Total Employee Count", f"{employee_metrics['total_employee_count']:.0f}" if employee_metrics['total_employee_count'] is not None else "N/A")
+    
 with col2:
-    st.metric("Bed Occupancy Rate (%)", f"{bed_occupancy_rate:.2f}")
+    st.metric("Average Employee Count", f"{employee_metrics['avg_employee_count']:.2f}" if employee_metrics['avg_employee_count'] is not None else "N/A")
 
 with col3:
-    st.metric("Occupied Beds", occupied_beds)
-
+    st.metric("Total Employee Resignations", f"{employee_metrics['total_employee_resign']:.0f}" if employee_metrics['total_employee_resign'] is not None else "N/A")
 with col4:
-    st.metric("Total Beds", total_beds)
+    st.metric("Average Employee Resignations", f"{employee_metrics['avg_employee_resign']:.2f}" if employee_metrics['avg_employee_resign'] is not None else "N/A")
 
-with col5:
-    st.metric("Total Admissions", total_admissions)
 
-# Additional overview charts
-st.subheader("Department Distribution of Admitted Patients")
-admissions_by_department = overview_df.groupby('departments')['daily_admissions'].sum().reset_index()
-fig = px.bar(admissions_by_department, x='departments', y='daily_admissions', title='Admissions by Department')
-st.plotly_chart(fig, use_container_width=True)
+# Department-based analysis for employee metrics
+department_employee_df = filtered_df.groupby('departments').agg({
+    'employee_count': 'sum',
+    'employee_resign': 'sum'
+}).reset_index()
 
-st.subheader("Average Treatment Costs")
-fig = px.bar(overview_df, x='departments', y='daily_revenue', title='Average Treatment Costs by Department')
-st.plotly_chart(fig, use_container_width=True)
-
-# Detailed Pages
-st.header("Detailed Analysis")
-department_df = filtered_df.groupby('departments').agg({'beds_in_use': 'sum', 'total_beds': 'first'})
-
+# Creating columns for metrics visualization
 col1, col2 = st.columns(2)
 
+# Bar Chart for Employee Count by Department
 with col1:
-    st.subheader("Department Bed In Use")
-    fig = px.bar(department_df, x=department_df.index, y='beds_in_use',
-                 text=[f'{x:,.2f}' for x in department_df['beds_in_use']],
-                 template="seaborn", color='beds_in_use', color_continuous_scale='Viridis')
+    st.subheader("Employee Count by Department")
+    fig = px.bar(department_employee_df, x='departments', y='employee_count',
+                 title='Total Employee Count by Department',
+                 labels={'employee_count': 'Employee Count', 'departments': 'Departments'},
+                 template="seaborn")
     st.plotly_chart(fig, use_container_width=True)
 
+# Bar Chart for Employee Resignations by Department
 with col2:
-    st.subheader("Department Bed In Use")
-    fig = px.bar(department_df, x=department_df.index, y='beds_in_use',
-                 text=[f'{x:,.2f}' for x in department_df['beds_in_use']],
-                 template="seaborn", color='beds_in_use', color_continuous_scale='Viridis')
+    st.subheader("Employee Resignations by Department")
+    fig = px.bar(department_employee_df, x='departments', y='employee_resign',
+                 title='Total Employee Resignations by Department',
+                 labels={'employee_resign': 'Employee Resignations', 'departments': 'Departments'},
+                 template="seaborn")
     st.plotly_chart(fig, use_container_width=True)
 
-department_df2 = filtered_df.groupby('departments').agg({
-    'daily_visits': 'sum',
-    'daily_admissions': 'sum',
-    'patient_days': 'sum'
-}).reset_index()
-department_df_melted = department_df2.melt(id_vars='departments',
-                                           value_vars=['daily_visits', 'daily_admissions', 'patient_days'],
-                                           var_name='Metric', value_name='Count')
+# Time Series for Employee Data
+filtered_df["weekly"] = filtered_df.index.to_period("W").start_time
+st.subheader('Time Series Analysis of Employee Count')
 
-with col1:
-    st.subheader("Department Daily Visit and Admissions")
-    fig = px.bar(department_df_melted, x='departments', y='Count', color='Metric', barmode='group',
-                 labels={'Count': 'Count', 'departments': 'Departments'},
-                 title='Department Metrics')
-    st.plotly_chart(fig, use_container_width=True)
+# Group by weekly and sum the employee_count
+linechart = pd.DataFrame(filtered_df.groupby("weekly")["employee_count"].sum()).reset_index()
 
-with col2:
-    st.subheader("Department Metrics Distribution")
-    fig = px.pie(department_df_melted, values='Count', names='Metric',
-                 title='Department Metrics Distribution',
-                 hole=0.5)
-    st.plotly_chart(fig, use_container_width=True)
+# Plot the line chart
+fig2 = px.line(linechart, x="weekly", y="employee_count", 
+               labels={"employee_count": "Employee Count", "weekly": "Week"},
+               title='Weekly Employee Count Over Time', 
+               height=500, width=1000, template="gridon")
 
-filtered_df["weekly"] = filtered_df.index.to_period("W")
-st.subheader('Time Series Analysis')
-linechart = pd.DataFrame(filtered_df.groupby(filtered_df["weekly"].dt.strftime("%b : %d"))["daily_visits"].sum()).reset_index()
-fig2 = px.line(linechart, x="weekly", y="daily_visits", labels={"Patient": "count"}, height=500, width=1000, template="gridon")
 st.plotly_chart(fig2, use_container_width=True)
+
+
+# Ensure the day_of_week column exists
+filtered_df["day_of_week"] = filtered_df.index.day_name()
+
+# Sidebar filter for Day of the Week
+st.sidebar.header("Filter by Day of the Week")
+day_of_week = st.sidebar.multiselect("Select the Day(s) of the Week", 
+                                     filtered_df["day_of_week"].unique())
+
+# Filter by the selected day(s)
+if day_of_week:
+    filtered_df = filtered_df[filtered_df["day_of_week"].isin(day_of_week)]
+
+# Time Series for Employee Data (Employee Count and Resign)
+st.subheader('Time Series Analysis of Employee Count and Employee Resign')
+
+# Group by day of the week and sum the employee_count and employee_resign
+employee_data = filtered_df.groupby("day_of_week")[["employee_count", "employee_resign"]].sum().reset_index()
+
+# Sort the days in a week order
+days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+employee_data["day_of_week"] = pd.Categorical(employee_data["day_of_week"], categories=days_order, ordered=True)
+employee_data = employee_data.sort_values("day_of_week")
+
+# Plot the bar chart for both employee_count and employee_resign
+fig = px.bar(employee_data, x="day_of_week", y=["employee_count", "employee_resign"],
+             barmode='group', labels={"value": "Count", "day_of_week": "Day of the Week"},
+             title="Employee Count and Resignations by Day of the Week", template="plotly_white")
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Group the data by departments and sum employee_count and employee_resign
+employee_distribution = filtered_df.groupby('departments')[['employee_count', 'employee_resign']].sum().reset_index()
+
+# Plot the bar chart for employee_count and employee_resign across departments
+st.subheader('Employee Count and Resignations by Department')
+
+fig = px.bar(employee_distribution, x='departments', y=['employee_count', 'employee_resign'],
+             barmode='group', labels={"value": "Count", "departments": "Departments"},
+             title="Employee Count and Resignations Distribution Across Departments",
+             template="plotly_white")
+
+st.plotly_chart(fig, use_container_width=True)
+
