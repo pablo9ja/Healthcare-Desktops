@@ -17,6 +17,7 @@ if fl is not None:
     df = pd.read_csv(fl)
 else:
     df = pd.read_csv("fake_healthcare.csv")
+#st.dataframe(df.head())
 
 # Ensure the date column is datetime and set as index
 df['date'] = pd.to_datetime(df['date'])
@@ -40,7 +41,7 @@ df = df[(df.index >= date1) & (df.index <= date2)].copy()
 st.sidebar.header("Choose your filter: ")
 # Create filter for Department
 department = st.sidebar.multiselect("Pick your department", df["departments"].unique())
-if not department:
+if not department: 
     df2 = df.copy()
 else:
     df2 = df[df["departments"].isin(department)]

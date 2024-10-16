@@ -4,9 +4,7 @@ import pandas as pd
 #import os
 #import warnings
 #warnings.filterwarnings('ignore')
-def run():
-    pass
-
+import matplotlib.pyplot as plt
 
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard For Doctor Performance")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
@@ -48,10 +46,18 @@ if not department:
 else:
     df2 = df[df["departments"].isin(department)]
 
-# Create filter for Refer Reason
+# Create filter for Doctor page
+doctor = st.sidebar.multiselect("Pick the Doctor ID", df2["doctor_id"].unique())
+if not doctor:
+    df3 = df2.copy()
+else:
+    df3 = df2[df2["doctor_id"].isin(doctor)]
+
+
 refer = st.sidebar.multiselect("Pick the refer reason", df2["refer_reason"].unique())
 if not refer:
     df3 = df2.copy()
+
 else:
     df3 = df2[df2["refer_reason"].isin(refer)]
 
@@ -144,6 +150,55 @@ with col2:
                  title='Department Metrics Distribution',
                  hole=0.5)
     st.plotly_chart(fig, use_container_width=True)
+# Check if the filtered DataFrame is empty
+if df3.empty:
+    st.warning("No data available for the selected Doctor IDs.")
+else:
+    # Define colors for the days of the week
+    color_map = {
+        'Monday': 'blue',
+        'Tuesday': 'orange',
+        'Wednesday': 'green',
+        'Thursday': 'red',
+        'Friday': 'purple',
+        'Saturday': 'pink',
+        'Sunday': 'cyan'
+    }
+    
+    # Create two columns for the plots
+    col1, col2 = st.columns(2)
+
+    # First Column: Daily Resignations
+    with col1:
+        st.subheader('Daily Resignations over Time')
+        fig1 = px.bar(df3, x='day_of_week', y='employee_resign', title='Daily Resignations over Time',
+                      color='day_of_week',  # Set color based on day_of_week
+                      color_discrete_map=color_map)  # Apply custom colors
+        # Improve layout and labels
+        fig1.update_layout(
+            xaxis_title='Day of the Week',
+            yaxis_title='Number of Employee Resignations',
+            xaxis=dict(tickmode='linear'),  # Ensures all days are displayed
+            barmode='group'  # Optional: Use 'group' or 'overlay' for different effects
+        )
+        # Display the plot in Streamlit
+        st.plotly_chart(fig1)
+
+    # Second Column: Daily Employee Count
+    with col2:
+        st.subheader('Daily Employee Count over Time')
+        fig2 = px.bar(df3, x='day_of_week', y='employee_count', title='Daily Employee Count over Time',
+                      color='day_of_week',  # Set color based on day_of_week
+                      color_discrete_map=color_map)  # Apply custom colors
+        # Improve layout and labels
+        fig2.update_layout(
+            xaxis_title='Day of the Week',
+            yaxis_title='Number of Employees',
+            xaxis=dict(tickmode='linear'),  # Ensures all days are displayed
+            barmode='group'  # Optional: Use 'group' or 'overlay' for different effects
+        )
+        # Display the plot in Streamlit
+        st.plotly_chart(fig2)
 
 filtered_df["weekly"] = filtered_df.index.to_period("W")
 st.subheader('Time Series Analysis')
