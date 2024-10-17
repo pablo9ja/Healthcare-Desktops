@@ -5,7 +5,7 @@ import pandas as pd
 def run():
     pass
 
-st.title(" :bar_chart: Helpman Hospital Staffs Interactive Dashboard")
+st.title(" :bar_chart: Helpman Hospital Interactive Dashboard For Hospiatl Staffs")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 # Sidebar for file upload
@@ -46,7 +46,7 @@ else:
     filtered_df = df[df["departments"].isin(department)]
 
 # Overview Page
-st.header("Overview")
+#st.header("Overview")
 overview_df = filtered_df.copy()
 
 
