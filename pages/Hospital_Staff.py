@@ -5,7 +5,7 @@ import pandas as pd
 def run():
     pass
 
-st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
+st.title(" :bar_chart: Helpman Hospital Staffs Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 # Sidebar for file upload
