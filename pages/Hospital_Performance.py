@@ -91,18 +91,18 @@ with col4:
 
 
 # Filter the dataset for admission_rate vs readmission_rate
-filtered_admission_df = filtered_df[['wait_time', 'admission_rate', 'readmission_rate']]
+filtered_admission_df = filtered_df[['wait_time', 'admission_rate', 'daily_discharge']]
 
 # Visualizing admission_rate vs readmission_rate filtered by wait_time
-st.header("Admission Rate vs Readmission Rate by Wait Time")
+st.header("Admission Rate vs daily_discharge Rate by Wait Time")
 
 # Plotting the scatter plot
 fig = px.scatter(filtered_admission_df,
                  x='admission_rate',
-                 y='readmission_rate',
+                 y='daily_discharge',
                  color='wait_time',
                  labels={'admission_rate': 'Admission Rate', 'readmission_rate': 'Readmission Rate'},
-                 title='Admission Rate vs Readmission Rate (colored by Wait Time)',
+                 title='Admission Rate vs daily_discharge Rate (colored by Wait Time)',
                  template='plotly_dark',
                  hover_data=['wait_time'])
 
@@ -119,16 +119,16 @@ filtered_equip_df = filtered_df[['wait_time', 'equip_count', 'equip_use']]
 aggregated_data = filtered_equip_df[['equip_count', 'equip_use']].sum()
 
 # Create a doughnut chart
-st.header("Equipment Count and Equipment Usage by Wait Time")
+st.header("Equipment Usage")
 
 # Preparing data for the doughnut chart
 doughnut_data = pd.DataFrame({
-    'Metric': ['Equipment Count', 'Equipment Use'],
+    'Metric': ['Equipment Dormant', 'Equipment In-use'],
     'Value': [aggregated_data['equip_count'], aggregated_data['equip_use']]
 })
 
 # Plot the doughnut chart (pie chart with hole)
-fig = px.pie(doughnut_data, values='Value', names='Metric', title='Equipment Count and Use Distribution',
+fig = px.pie(doughnut_data, values='Value', names='Metric', title='Equipment Use Distribution',
              hole=0.4, labels={'Value': 'Total Value', 'Metric': 'Metrics'}, 
              template="plotly_dark", color_discrete_sequence=px.colors.sequential.RdBu)
 

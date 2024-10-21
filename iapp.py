@@ -185,10 +185,10 @@ elif page == "Revenue Streams":
 
     # Donut Chart for Revenue Streams
     if 'daily_revenue' in revenue_df.columns:
-        st.subheader("Revenue Streams Distribution")
+        st.subheader("Profit Distribution")
         revenue_summary = revenue_df[['daily_revenue']].sum().reset_index()
         revenue_summary.columns = ['Metric', 'Total']
-        fig = px.pie(revenue_summary, values='Total', names='Metric', title='Revenue Streams Distribution', hole=0.5)
+        fig = px.pie(revenue_summary, values='Total', names='Metric', title='profit Distribution', hole=0.5)
         st.plotly_chart(fig, use_container_width=True)
 # Detailed Pages
 st.header("Detailed Analysis")
@@ -353,7 +353,7 @@ if selected_days:
         if 'daily_revenue' in filtered_days_df.columns:
             day_of_week_revenue = filtered_days_df.groupby('day_of_week')['daily_revenue'].sum().reset_index()
             fig = px.pie(day_of_week_revenue, values='daily_revenue', names='day_of_week',
-                         title='Revenue Distribution by Day of the Week', hole=0.5)
+                         title='Profit Distribution by Day of the Week', hole=0.5)
             st.plotly_chart(fig, use_container_width=True)
 else:
     st.write("No days of the week selected.")
