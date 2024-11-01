@@ -19,7 +19,7 @@ if fl is not None:
     st.write(filename)
     df = pd.read_csv(fl)
 else:
-    df = pd.read_csv("fake_healthcare.csv")
+    df = pd.read_csv("fake_healthcare_2.csv")
 
 # Ensure the date column is datetime and set as index
 df['date'] = pd.to_datetime(df['date'])

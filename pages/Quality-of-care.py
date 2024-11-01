@@ -1,12 +1,16 @@
-import streamlit as st
+
 import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-st.title(" :bar_chart: Helpman Healthcare Patient Interactive Dashboard")
-st.write("Patient data and records.")
+def run():
+    pass
+st.title(" :bar_chart: Helpman Healthcare Quality of care Interactive Dashboard")
+st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+st.write("Quality of care.")
+
+
 
 # Sidebar for file upload
 st.sidebar.header("Upload your data file")
@@ -16,7 +20,7 @@ if fl is not None:
     st.write(filename)
     df = pd.read_csv(fl)
 else:
-    df = pd.read_csv("fake_healthcare.csv")
+    df = pd.read_csv("fake_healthcare_2.csv")
 
 # Ensure the date column is datetime and set as index
 df['date'] = pd.to_datetime(df['date'])
