@@ -11,7 +11,7 @@ def run():
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
-df = pd.read_csv("fake_healthcare.csv")
+df = pd.read_csv("fake_healthcare_2.csv")
 
 # Ensure the date column is datetime and set as index
 df['date'] = pd.to_datetime(df['date'])
