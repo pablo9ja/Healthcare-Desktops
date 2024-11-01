@@ -11,15 +11,7 @@ def run():
 st.title(" :bar_chart: Helpman Healthcare Interactive Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
-# Sidebar for file upload
-st.sidebar.header("Upload your data file")
-fl = st.sidebar.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
-if fl is not None:
-    filename = fl.name
-    st.write(filename)
-    df = pd.read_csv(fl)
-else:
-    df = pd.read_csv("fake_healthcare.csv")
+df = pd.read_csv("fake_healthcare.csv")
 
 # Ensure the date column is datetime and set as index
 df['date'] = pd.to_datetime(df['date'])
